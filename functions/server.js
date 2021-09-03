@@ -6,9 +6,9 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 app.listen(port);
-// https://kromate-muslink-api-qjwp4665c9g5v-3000.githubpreview.dev/youtube/getYoutubeSongsBySearch/?sn=Overthinking&an=Sophie%20Pecora;
-
-app.get("/youtube/getYoutubeSongsBySearch", async (request, response) => {
+// TODO: just have only the URL needs work
+// https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=100&playlistId=PLKQ0g8HhSxnfw3d5sC21gPTvjF_X1WYNa&key=[YOUR_API_KEY]
+app.get("/youtube/getYoutubePlaylist", async (request, response) => {
     console.log(request.query.artistName);
     const url = "https://www.googleapis.com/youtube/v3/search";
 	const q = `${request.query.an} - ${request.query.sn}`;
