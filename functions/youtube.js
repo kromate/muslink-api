@@ -1,11 +1,6 @@
-require('dotenv').config();
-const express = require("express");
-const axios = require("axios");
 
-const port = process.env.PORT || 3000;
-const app = express();
-
-app.listen(port);
+// This endpoint is for getYoutubeSongById and takes in a song id query
+// https://kromate-muslink-api-qjwp4665c9g5v-3000.githubpreview.dev/youtube/getYoutubeSongById?id=f0teM3X2GAg
 app.get("/youtube/getYoutubeSongById", async (request, response) => {
     console.log(request.query.id);
     const url = "https://youtube.googleapis.com/youtube/v3/videos";
