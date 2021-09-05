@@ -9,31 +9,34 @@ app.listen(port);
 // TODO: just have only the URL needs work
 // https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=100&playlistId=PLKQ0g8HhSxnfw3d5sC21gPTvjF_X1WYNa&key=[YOUR_API_KEY]
 app.get("/youtube/getYoutubePlaylist", async (request, response) => {
-    console.log(request.query.artistName);
-    const url = "https://www.googleapis.com/youtube/v3/search";
-	const q = `${request.query.an} - ${request.query.sn}`;
-	const type = "audio";
-	const youtubeUrl = `${url}?part=snippet&q=${q}&type=${type}&key=${process.env.API_KEY}`;
+    console.log(request.query.id);
+    const url = "https://youtube.googleapis.com/youtube/v3/playlistItems";
+	const youtubeUrl = `${url}?part=snippet&maxResults=100&playlistId=${request.query.id}&key=${process.env.API_KEY}`;
     try{
         const ytResponse = await axios.get(youtubeUrl);
-        // console.log(ytResponse);
         if(ytResponse.data.items.length){
-        const thumbnails = ytResponse.data.items[0].snippet.thumbnails.default.url;
-        const title = ytResponse.data.items[0].snippet.title.split("-")[1];
-        const artist = ytResponse.data.items[0].snippet.title.split("-")[0]
-        const id = ytResponse.data.items[0].id.videoId
-        // const id = ytResponse.data.items[0].id;
-        // const title = `${artistName} - ${songName}`;
+        const data = ytResponse.data.items;
+        const structuredData = []
+        data.forEach((item)=>{
+        const value =  {
+                id:item.snippet.resourceId ? item.snippet.resourceId.videoId : undefined,
+                title:item.snippet.title,
+                thumbnails:item.snippet.thumbnails.default ? item.snippet.thumbnails.default.url : undefined,
+                artist:item.snippet.videoOwnerChannelTitle? item.snippet.videoOwnerChannelTitle.split("-")[0] : undefined,
+            }
+            structuredData.push(value)
+        })
+
 
       response.set("Access-Control-Allow-Origin", "*");
-      response.send({ thumbnails, title, artist, id });
-    //   response.send(ytResponse.data);
+      response.send(structuredData);
         }else{
             response.set("Access-Control-Allow-Origin", "*");
       response.send({ error: 404, message:'Not Found' });
         }
     }catch(e){
         console.log(e);
+        response.send(e);
         console.log('something went wrong o');
     }
 });

@@ -63,3 +63,41 @@ app.get("/youtube/getYoutubeSongsBySearch", async (request, response) => {
 });
 
 
+// this endpoint returns an array with a list of songs
+// input-key: id, output-key: id, title, thumbnails, artist
+// https://kromate-muslink-api-6qj45wwxcr69g-5000.githubpreview.dev/youtube/getYoutubePlaylist/?id=PLKQ0g8HhSxnfoXbeWQwaw_dL5chQ8_LKT
+
+app.get("/youtube/getYoutubePlaylist", async (request, response) => {
+    console.log(request.query.id);
+    const url = "https://youtube.googleapis.com/youtube/v3/playlistItems";
+	const youtubeUrl = `${url}?part=snippet&maxResults=100&playlistId=${request.query.id}&key=${process.env.API_KEY}`;
+    try{
+        const ytResponse = await axios.get(youtubeUrl);
+        if(ytResponse.data.items.length){
+        const data = ytResponse.data.items;
+        const structuredData = []
+        data.forEach((item)=>{
+        const value =  {
+                id:item.snippet.resourceId ? item.snippet.resourceId.videoId : undefined,
+                title:item.snippet.title,
+                thumbnails:item.snippet.thumbnails.default ? item.snippet.thumbnails.default.url : undefined,
+                artist:item.snippet.videoOwnerChannelTitle? item.snippet.videoOwnerChannelTitle.split("-")[0] : undefined,
+            }
+            structuredData.push(value)
+        })
+
+
+      response.set("Access-Control-Allow-Origin", "*");
+      response.send(structuredData);
+        }else{
+            response.set("Access-Control-Allow-Origin", "*");
+      response.send({ error: 404, message:'Not Found' });
+        }
+    }catch(e){
+        console.log(e);
+        response.send(e);
+        console.log('something went wrong o');
+    }
+});
+
+
